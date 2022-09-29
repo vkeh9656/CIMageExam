@@ -31,6 +31,7 @@ void CCIMageExamDlg::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CCIMageExamDlg, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+	ON_WM_LBUTTONDOWN()
 END_MESSAGE_MAP()
 
 
@@ -45,7 +46,7 @@ BOOL CCIMageExamDlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// 큰 아이콘을 설정합니다.
 	SetIcon(m_hIcon, FALSE);		// 작은 아이콘을 설정합니다.
 
-	// TODO: 여기에 추가 초기화 작업을 추가합니다.
+	m_my_image.Load(L"sans.png"); // L"C:\\temp\\sans.png"
 
 	return TRUE;  // 포커스를 컨트롤에 설정하지 않으면 TRUE를 반환합니다.
 }
@@ -56,10 +57,10 @@ BOOL CCIMageExamDlg::OnInitDialog()
 
 void CCIMageExamDlg::OnPaint()
 {
+	CPaintDC dc(this); // 그리기를 위한 디바이스 컨텍스트입니다.
+
 	if (IsIconic())
 	{
-		CPaintDC dc(this); // 그리기를 위한 디바이스 컨텍스트입니다.
-
 		SendMessage(WM_ICONERASEBKGND, reinterpret_cast<WPARAM>(dc.GetSafeHdc()), 0);
 
 		// 클라이언트 사각형에서 아이콘을 가운데에 맞춥니다.
@@ -75,7 +76,15 @@ void CCIMageExamDlg::OnPaint()
 	}
 	else
 	{
-		CDialogEx::OnPaint();
+		int w = m_my_image.GetWidth();
+		int h = m_my_image.GetHeight();
+
+		
+		
+		m_my_image.AlphaBlend(dc, 0, 0, 100);
+		m_my_image.Draw(dc, m_clicked_pos.x-50, m_clicked_pos.y-50, 100, 100, m_clicked_pos.x - 50, m_clicked_pos.y - 50, 100, 100);
+		m_my_image.Draw(dc, w, 0, 200, 200, m_clicked_pos.x - 50, m_clicked_pos.y - 50, 100, 100);
+		// CDialogEx::OnPaint();
 	}
 }
 
@@ -86,3 +95,12 @@ HCURSOR CCIMageExamDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+
+
+void CCIMageExamDlg::OnLButtonDown(UINT nFlags, CPoint point)
+{
+	m_clicked_pos = point;
+	Invalidate();
+
+	CDialogEx::OnLButtonDown(nFlags, point);
+}
